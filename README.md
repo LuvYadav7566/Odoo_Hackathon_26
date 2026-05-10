@@ -30,6 +30,21 @@ npx prisma db seed
 npm run dev
 ```
 
+## One Command Local Development
+
+From the project root:
+
+```bash
+npm install
+npm run install:all
+npm run dev
+```
+
+This starts both:
+
+- Backend: `http://localhost:5000`
+- Frontend: `http://localhost:5173`
+
 Set `DATABASE_URL` to your Neon PostgreSQL connection string.
 
 ## Frontend Setup
@@ -49,4 +64,3 @@ After seeding:
 
 - Email: `maya@traveloop.app`
 - Password: `password123`
-
