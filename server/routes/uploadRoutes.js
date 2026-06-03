@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const cloudinary = require('cloudinary').v2;
+const { handleUploadResponse } = require('../controllers/uploadController');
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -26,13 +27,7 @@ router.post('/', (req, res) => {
       console.error("Upload error:", err);
       return res.status(500).json({ message: err.message || 'Upload failed', details: err });
     }
-    if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
-    }
-    res.status(200).json({
-      message: 'Image uploaded successfully',
-      url: req.file.path,
-    });
+    handleUploadResponse(req, res);
   });
 });
 
