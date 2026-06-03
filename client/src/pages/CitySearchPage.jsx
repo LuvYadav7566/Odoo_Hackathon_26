@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Search, MapPin, Star, DollarSign, Compass, Sparkles, Globe } from 'lucide-react';
 import { activityService } from '../services/activityService';
+import { cityService } from '../services/cityService';
 import ActivityCard from '../components/ActivityCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 
@@ -19,7 +20,7 @@ const CitySearchPage = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const [c, a] = await Promise.all([activityService.getCities(), activityService.getActivities()]);
+        const [c, a] = await Promise.all([cityService.getCities(), activityService.getActivities()]);
         setCities(c); setActivities(a);
         if (searchParams.get('city')) setTab('activities');
       } catch {} finally { setLoading(false); }

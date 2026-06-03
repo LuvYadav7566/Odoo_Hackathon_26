@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Shield, Users as UsersIcon, Map, TrendingUp, Trash2, Sparkles } from 'lucide-react';
-import { adminService } from '../services/budgetService';
+import { adminService } from '../services/adminService';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import LoadingSpinner from '../components/LoadingSpinner';
 import toast from 'react-hot-toast';

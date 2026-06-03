@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { io } from 'socket.io-client';
-import axios from 'axios';
+import { chatService } from '../services/chatService';
 import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
 import { Send, MessageSquare, Sparkles, Clock, AlertTriangle } from 'lucide-react';
@@ -112,10 +112,8 @@ const ChatPage = () => {
       socketRef.current.emit('join_chat', chat._id);
     }
     try {
-      const res = await axios.get(`${API_URL}/chat/${chat._id}`, {
-        headers: { Authorization: `Bearer ${user.token}` }
-      });
-      setMessages(res.data.messages || []);
+      const data = await chatService.getChat(chat._id);
+      setMessages(data.messages || []);
     } catch (err) {
       if (err.response?.status === 403 && err.response?.data?.message?.includes('expired')) {
         setChatExpired(true);
@@ -143,11 +141,9 @@ const ChatPage = () => {
       console.error('Socket connection error:', err.message);
     });
 
-    axios.get(`${API_URL}/chat`, {
-      headers: { Authorization: `Bearer ${user.token}` }
-    })
-      .then(res => {
-        setChats(res.data);
+    chatService.getChats()
+      .then(data => {
+        setChats(data);
         setLoading(false);
       })
       .catch(err => {

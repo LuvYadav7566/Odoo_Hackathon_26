@@ -11,12 +11,4 @@ export const activityService = {
     const { data } = await axios.get(`${API}/activities/${id}`);
     return data;
   },
-  getCities: async (params) => {
-    const { data } = await axios.get(`${API}/cities`, { params });
-    return data;
-  },
-  getCity: async (id) => {
-    const { data } = await axios.get(`${API}/cities/${id}`);
-    return data;
-  },
 };

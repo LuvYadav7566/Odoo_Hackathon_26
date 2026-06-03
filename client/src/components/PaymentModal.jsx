@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CreditCard, Shield, Sparkles, MessageCircle } from 'lucide-react';
-import axios from 'axios';
+import { paymentService } from '../services/paymentService';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -17,10 +17,10 @@ const PaymentModal = ({ isOpen, onClose, trip }) => {
     if (!user || !trip) return;
     setProcessing(true);
     try {
-      const { data: order } = await axios.post(`${API_URL}/payment/create-order`, {
-        creatorId: trip.user._id || trip.user,
-        tripId: trip._id,
-      }, { headers: { Authorization: `Bearer ${user.token}` } });
+      const order = await paymentService.createOrder(
+        trip.user._id || trip.user,
+        trip._id
+      );
 
       const options = {
         key: order.keyId,
@@ -31,13 +31,13 @@ const PaymentModal = ({ isOpen, onClose, trip }) => {
         order_id: order.orderId,
         handler: async (response) => {
           try {
-            await axios.post(`${API_URL}/payment/verify`, {
+            await paymentService.verifyPayment({
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
               creatorId: trip.user._id || trip.user,
               tripId: trip._id,
-            }, { headers: { Authorization: `Bearer ${user.token}` } });
+            });
             toast.success('Payment successful! Chat unlocked for 24 hours.');
             onClose();
             navigate('/chat');

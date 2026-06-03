@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, Plus, Edit, Trash2, Calendar, MapPin, Sparkles } from 'lucide-react';
-import { notesService } from '../services/budgetService';
+import { notesService } from '../services/notesService';
 import Modal from '../components/Modal';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { timeAgo } from '../utils/formatDate';

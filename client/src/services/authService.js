@@ -3,6 +3,14 @@ import axios from 'axios';
 const API = import.meta.env.VITE_API_BASE_URL || '/api';
 
 export const authService = {
+  login: async (email, password) => {
+    const { data } = await axios.post(`${API}/auth/login`, { email, password });
+    return data;
+  },
+  register: async (formData) => {
+    const { data } = await axios.post(`${API}/auth/register`, formData);
+    return data;
+  },
   getMe: async () => {
     const { data } = await axios.get(`${API}/auth/me`);
     return data;

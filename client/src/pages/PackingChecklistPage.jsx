@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckSquare, Plus, Trash2, RotateCcw, Printer, Sparkles } from 'lucide-react';
-import { checklistService } from '../services/budgetService';
+import { checklistService } from '../services/checklistService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import toast from 'react-hot-toast';
 
