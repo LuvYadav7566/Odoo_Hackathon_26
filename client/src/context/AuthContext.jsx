@@ -1,67 +1,67 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
-import api from "../api/axios";
+import { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
 
 const AuthContext = createContext(null);
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    const cached = localStorage.getItem("traveloop_user");
-    return cached ? JSON.parse(cached) : null;
-  });
-  const [loading, setLoading] = useState(false);
+const API_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("traveloop_token");
-    if (!token) return;
-    api.get("/auth/me")
-      .then((res) => {
-        setUser(res.data.user);
-        localStorage.setItem("traveloop_user", JSON.stringify(res.data.user));
-      })
-      .catch(() => logout());
+    const stored = localStorage.getItem('traveloop_user');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        setUser(parsed);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${parsed.token}`;
+      } catch {
+        localStorage.removeItem('traveloop_user');
+      }
+    }
+    setLoading(false);
   }, []);
 
-  const persist = (payload) => {
-    localStorage.removeItem("traveloop_active_trip");
-    localStorage.removeItem("traveloop_active_trip_cache");
-    localStorage.removeItem("traveloop_trips_cache");
-    localStorage.setItem("traveloop_token", payload.token);
-    localStorage.setItem("traveloop_user", JSON.stringify(payload.user));
-    setUser(payload.user);
-  };
-
   const login = async (email, password) => {
-    setLoading(true);
-    try {
-      const res = await api.post("/auth/login", { email, password });
-      persist(res.data);
-      return res.data;
-    } finally {
-      setLoading(false);
-    }
+    const { data } = await axios.post(`${API_URL}/auth/login`, { email, password });
+    setUser(data);
+    localStorage.setItem('traveloop_user', JSON.stringify(data));
+    axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+    return data;
   };
 
-  const signup = async (data) => {
-    setLoading(true);
-    try {
-      const res = await api.post("/auth/signup", data);
-      persist(res.data);
-    } finally {
-      setLoading(false);
-    }
+  const register = async (formData) => {
+    const { data } = await axios.post(`${API_URL}/auth/register`, formData);
+    setUser(data);
+    localStorage.setItem('traveloop_user', JSON.stringify(data));
+    axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+    return data;
   };
 
   const logout = () => {
-    localStorage.removeItem("traveloop_token");
-    localStorage.removeItem("traveloop_user");
-    localStorage.removeItem("traveloop_active_trip");
-    localStorage.removeItem("traveloop_active_trip_cache");
-    localStorage.removeItem("traveloop_trips_cache");
     setUser(null);
+    localStorage.removeItem('traveloop_user');
+    delete axios.defaults.headers.common['Authorization'];
   };
 
-  const value = useMemo(() => ({ user, loading, login, signup, logout, setUser }), [user, loading]);
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
+  const updateUser = (updates) => {
+    const updated = { ...user, ...updates };
+    setUser(updated);
+    localStorage.setItem('traveloop_user', JSON.stringify(updated));
+  };
 
-export const useAuth = () => useContext(AuthContext);
+  return (
+    <AuthContext.Provider value={{ user, loading, login, register, logout, updateUser }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error('useAuth must be used within AuthProvider');
+  return context;
+};
+
+export default AuthContext;
